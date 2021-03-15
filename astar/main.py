@@ -48,7 +48,7 @@ def readCity(file_name):
 # function to graph input cities into objects
 def preprocess():
     # read from file
-    readCity("input.txt")
+    readCity("d_input.txt")
 
     # visualization
     graph = pydot.Dot('my_graph', graph_type='graph', bgcolor='white')
