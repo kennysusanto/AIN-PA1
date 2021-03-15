@@ -105,7 +105,7 @@ def aStarSearch(src, dest, path, textVar):
             # euclidean distance
             ed = euclideanDistance(cities[findCity(city)], dest)
             # distance
-            d = src.getConnectedCities().get(city) + ed
+            d = src.getConnectedCities().get(city) + ed # f
             distance_list.append(d)
             city_names.append(city)
 
@@ -180,7 +180,8 @@ def updateImage(dest):
     for city in cities:
         # Add nodes
         ed = euclideanDistance(city, dest)
-        node = pydot.Node(city.getCityName(), shape='circle', label=city.getCityName(), xlabel=f"h={ed:.2f}")
+        ed = round(ed)
+        node = pydot.Node(city.getCityName(), shape='circle', label=city.getCityName(), xlabel=f"h={ed}")
         graph.add_node(node)
 
     for city in cities:
