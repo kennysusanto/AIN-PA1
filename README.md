@@ -1,6 +1,6 @@
 # AIN-PA1
 
-**Python 3.8**
+Python version: **3.8**
 
 ### Packages used:
 1. pydot
@@ -11,5 +11,5 @@
 Make sure those packages are installed for you python.
 
 ### Sources:
-A* algorithm [source](https://www.geeksforgeeks.org/a-search-algorithm/)
-N-queens algorithm [source](https://www.youtube.com/watch?v=qt85_CinKwo)
+1. A* algorithm [source](https://www.geeksforgeeks.org/a-search-algorithm/)
+2. N-queens algorithm [source](https://www.youtube.com/watch?v=qt85_CinKwo)
