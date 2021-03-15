@@ -77,6 +77,19 @@ def gen_diagonals(col, row, col_limit, row_limit, col_diff, row_diff):
         row += row_diff
         return [col, row]
 
+def cal_probs(fits):
+    total = 0
+    for fitness in fits:
+        total += fitness
+    
+    probs = []
+    for fitness in fits:
+        val = (fitness/total)*100
+        probs.append(val)
+
+    return probs
+
+
 def cross_over():
     pass
 
@@ -88,5 +101,7 @@ def mutation():
 n = int(input("Enter n: "))
 population = initial_population(n)
 fitness = fitness(population)
+probabilities = cal_probs(fitness)
 print(population)
 print(fitness)
+print(probabilities)

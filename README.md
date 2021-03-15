@@ -1,8 +1,8 @@
 # AIN-PA1
 
-Python 3.8
+**Python 3.8**
 
-Packages used:
+### Packages used:
 1. pydot
 2. graphviz
 3. pillow
@@ -10,8 +10,6 @@ Packages used:
 
 Make sure those packages are installed for you python.
 
-Sources:
-
+### Sources:
 A* algorithm [source](https://www.geeksforgeeks.org/a-search-algorithm/)
-
 N-queens algorithm [source](https://www.youtube.com/watch?v=qt85_CinKwo)
