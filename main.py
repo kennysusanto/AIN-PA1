@@ -24,7 +24,7 @@ def readCity(file_name):
     result_text = text.split("\n")
     separator_index = 0
     for line in result_text:
-        if(line == ''):
+        if line == '':
             separator_index = result_text.index(line)
 
     chunk1 = result_text[:separator_index]
@@ -64,7 +64,7 @@ def preprocess():
         already_connected = []
         # problem still exists --> double edge
         for c_city in connected_cities:
-            if(c_city in already_connected):
+            if c_city in already_connected:
                 continue
             else:
                 already_connected.append(c_city)
@@ -77,13 +77,13 @@ def preprocess():
 def authenticate(srcCityE, destCityE, textVar):
     source_city = srcCityE.get()
     destination_city = destCityE.get()
-    if(source_city == '' or destination_city == ''):
+    if source_city == '' or destination_city == '':
         # input is empty
         messagebox.showwarning("Warning", "Your entry may be empty!") 
     else:
         # input is filled
         cities_list = [city.getCityName() for city in cities]
-        if(not source_city in cities_list or not destination_city in cities_list):
+        if not source_city in cities_list or not destination_city in cities_list:
             # input is not in cities
             messagebox.showwarning("Warning", "Your entry is not defined!") 
         else:
@@ -95,9 +95,9 @@ def authenticate(srcCityE, destCityE, textVar):
 
 # a star algorithm
 def aStarSearch(src, dest, path, textVar):
-    if(isDestination(src, dest)):
+    if isDestination(src, dest):
         textVar.set(path)
-    else:
+    else:        
         # find shortest f from each edge
         distance_list = [] # list distance or value
         city_names = [] # list keys
@@ -109,15 +109,48 @@ def aStarSearch(src, dest, path, textVar):
             distance_list.append(d)
             city_names.append(city)
 
-        shortest_index = distance_list.index(min(distance_list))
-        next_city = cities[findCity(city_names[shortest_index])]
-        print(src.getCityName())
-        print(distance_list)
-        print(city_names)
-        print(next_city.getCityName())
-        print("\n")
-        path.append(next_city.getCityName())
-        aStarSearch(next_city, dest, path, textVar)
+        # check if there are no connected cities
+        if not distance_list or not city_names:
+            textVar.set("No path found!")
+        else:        
+            shortest_index = distance_list.index(min(distance_list))
+            next_city = cities[findCity(city_names[shortest_index])]
+
+            # if city has been visited before
+            new_distance_list = []
+            new_city_names = []
+            for city in city_names:
+                print(f"{city} in path: {city in path}")
+                if city in path:
+                    # check if there are no connected cities
+                    if not distance_list or not city_names:
+                        textVar.set("No path found!")
+                        break
+                    else:
+                        #print(f"remove {city} from {city_names}")
+                        #distance_list.pop(city_names.index(city))
+                        #city_names.remove(city)
+                        #shortest_index = new_distance_list.index(min(new_distance_list))
+                        #next_city = cities[findCity(new_city_names[shortest_index])]
+                        pass
+                else:
+                    new_distance_list.append(distance_list[city_names.index(city)])
+                    new_city_names.append(city)
+                    shortest_index = new_distance_list.index(min(new_distance_list))
+                    next_city = cities[findCity(new_city_names[shortest_index])]
+
+            # check if there are no connected cities
+            if not new_distance_list or not new_city_names:
+                textVar.set("No path found!")
+            else:
+                print(f"src city: {src.getCityName()}")
+                tmp = dict(zip(new_city_names, new_distance_list))
+                print(f"connected cities: {tmp.keys()}{tmp.values()}")
+                print(f"next city: {next_city.getCityName()}")
+                print("\n")
+
+                path.append(next_city.getCityName())
+                aStarSearch(next_city, dest, path, textVar)
     
 
 # function to find city from list of cities using city name
@@ -129,7 +162,7 @@ def findCity(city_name):
 
 # function to check whether the source city is the destination city or not
 def isDestination(src, dest):
-    if(src.getCoor() == dest.getCoor()):
+    if src.getCoor() == dest.getCoor():
         return True
     else:
         return False
@@ -156,7 +189,7 @@ def updateImage(dest):
         already_connected = []
         # problem still exists --> double edge
         for c_city in connected_cities:
-            if(c_city in already_connected):
+            if c_city in already_connected:
                 continue
             else:
                 already_connected.append(c_city)
