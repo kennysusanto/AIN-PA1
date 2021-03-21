@@ -1,5 +1,6 @@
 import random
 
+# function to create random population
 def initial_population(n):
     pop = []
     i = 0
@@ -14,8 +15,18 @@ def initial_population(n):
     
     return pop
 
+# function to calculate max fitness / best fitness (means the solution)
+def calc_best_fit(n):
+    x = 0
+    total = 0
+    while x < n:
+        total += (n-1)-x
+        x += 1
+    return total
+
+# function to calculate the fitness of each individual population
 # fitness = number of non-attacking queens
-def fitness(pop):
+def cal_fitness(pop):
     fitnesses = []
     for board in pop:
         res = 0
@@ -41,10 +52,14 @@ def fitness(pop):
                         # non-attacking pair, add fitness for this board by 1
                         res += 1
                 j += 1
+            # remove current queen so it is not calculated
+            # in the next iteration
+            queens.remove(q)
     
         fitnesses.append(res)
     return fitnesses
 
+# function to check whether queens attack each other or not
 # attacking = same row, same col, same diag
 def check_attacking(q1, q2, n):
     # IMPORTANT!!!
@@ -71,12 +86,14 @@ def check_attacking(q1, q2, n):
         # non-attacking pair
         return False
 
+# function to generate diagonal boxes
 def gen_diagonals(col, row, col_limit, row_limit, col_diff, row_diff):
     while 1 < col < col_limit and 1 < row < row_limit:
         col += col_diff
         row += row_diff
         return [col, row]
 
+# function to calculate probabilities of each individual population
 def cal_probs(fits):
     total = 0
     for fitness in fits:
@@ -89,19 +106,69 @@ def cal_probs(fits):
 
     return probs
 
+# function to cross two individual populations
+def cross_over(population, probabilities):
+    # choose n pop from population based on probability
+    n = len(population)
+    choosen = random.choices(population, weights=probabilities, k=n)
+    # cross over
+    crossed = []
+    i = 0
+    while i < n:
+        split_point = random.randint(1, n-1)
+        pop1 = choosen[i]
+        pop2 = choosen[i+1]
+        combined1 = pop1[:split_point] + pop2[split_point:]
+        combined2 = pop2[:split_point] + pop1[split_point:]
+        crossed.append(combined1)
+        crossed.append(combined2)
 
-def cross_over():
-    pass
+        i += 2
 
-def mutation():
-    pass
+    return crossed
 
+# function to mutate individual populations
+def mutation(population):
+    res = []
+    for pop in population:
+        tmp_pop = pop[:]
+        n = len(tmp_pop)
+        random_index = random.randint(0, n-1)
+        random_val = random.randint(1, n)
+        tmp_pop[random_index] = random_val
+        res.append(tmp_pop)
+
+    return res
 
 # main
 n = int(input("Enter n: "))
+g = int(input("Enter g: "))
 population = initial_population(n)
-fitness = fitness(population)
+best_fitness = calc_best_fit(n)
+fitness = cal_fitness(population)
 probabilities = cal_probs(fitness)
-print(population)
-print(fitness)
-print(probabilities)
+population_after_crossover = cross_over(population, probabilities)
+result_pop = mutation(population_after_crossover)
+print(f'gen 1 -> {result_pop} -> {fitness}')
+i = 1
+while i <= g:
+    
+    if i == g:
+        print('reached final generation')
+        break
+    for f in fitness:
+        if f == best_fitness:
+            x = fitness.index(f)
+            print(f'found best solution {result_pop[x]}')
+            break
+    
+    fitness = cal_fitness(result_pop)
+    probabilities = cal_probs(fitness)
+    population_after_crossover = cross_over(result_pop, probabilities)
+    result_pop = mutation(population_after_crossover)
+
+    i += 1
+    print(f'gen {i} -> {result_pop} -> {fitness} -> {probabilities}')
+
+    
+    
