@@ -2,7 +2,7 @@ import pydot
 import math
 from tkinter import *
 from tkinter import messagebox
-from PIL import ImageTk, Image  
+from PIL import ImageTk, Image
 
 from classes import City
 
@@ -16,8 +16,8 @@ nodes = []
 imgList = []
 
 
-# read from file and populate list of cities
 def readCity(file_name):
+    # read from file and populate list of cities
     f = open(file_name, "r")
     text = f.read()
     # split file text into two based on new line
@@ -42,11 +42,14 @@ def readCity(file_name):
         destination_city_name = line[2]
         distance = int(line[4:])
         # connect cities
-        cities[findCity(source_city_name)].addConnectedCity(destination_city_name, distance)
-        cities[findCity(destination_city_name)].addConnectedCity(source_city_name, distance)
-    
-# function to graph input cities into objects
+        cities[findCity(source_city_name)].addConnectedCity(
+            destination_city_name, distance)
+        cities[findCity(destination_city_name)].addConnectedCity(
+            source_city_name, distance)
+
+
 def preprocess():
+    # function to graph input cities into objects
     # read from file
     readCity("d_input.txt")
 
@@ -54,38 +57,40 @@ def preprocess():
     graph = pydot.Dot('my_graph', graph_type='graph', bgcolor='white')
     for city in cities:
         # Add nodes
-        node = pydot.Node(city.getCityName(), shape='circle', label=city.getCityName())
+        node = pydot.Node(city.getCityName(), shape='circle',
+                          label=city.getCityName())
         graph.add_node(node)
         nodes.append(node)
 
+    already_connected = []
     for city in cities:
         # Add edges
         connected_cities = city.getConnectedCities().keys()
-        already_connected = []
-        # problem still exists --> double edge
         for c_city in connected_cities:
             if c_city in already_connected:
                 continue
             else:
-                already_connected.append(c_city)
-                graph.add_edge(pydot.Edge(city.getCityName(), c_city, color='blue', label=city.getConnectedCities().get(c_city)))
+                already_connected.append(city.getCityName())
+                graph.add_edge(pydot.Edge(city.getCityName(
+                ), c_city, color='blue', label=city.getConnectedCities().get(c_city)))
 
     # output visualization
-    graph.write_png('output.png') # ignore error
+    graph.write_png('output.png')  # ignore error
 
-# function to check whether the input is empty or not
+
 def authenticate(srcCityE, destCityE, textVar):
+    # function to check whether the input is empty or not
     source_city = srcCityE.get()
     destination_city = destCityE.get()
     if source_city == '' or destination_city == '':
         # input is empty
-        messagebox.showwarning("Warning", "Your entry may be empty!") 
+        messagebox.showwarning("Warning", "Your entry may be empty!")
     else:
         # input is filled
         cities_list = [city.getCityName() for city in cities]
         if not source_city in cities_list or not destination_city in cities_list:
             # input is not in cities
-            messagebox.showwarning("Warning", "Your entry is not defined!") 
+            messagebox.showwarning("Warning", "Your entry is not defined!")
         else:
             source_city = cities[findCity(source_city)]
             destination_city = cities[findCity(destination_city)]
@@ -93,26 +98,27 @@ def authenticate(srcCityE, destCityE, textVar):
             path = [source_city.getCityName()]
             aStarSearch(source_city, destination_city, path, textVar)
 
-# a star algorithm
+
 def aStarSearch(src, dest, path, textVar):
+    # a star algorithm
     if isDestination(src, dest):
         textVar.set(path)
-    else:        
+    else:
         # find shortest f from each edge
-        distance_list = [] # list distance or value
-        city_names = [] # list keys
+        distance_list = []  # list distance or value
+        city_names = []  # list keys
         for city in src.getConnectedCities().keys():
             # euclidean distance
             ed = euclideanDistance(cities[findCity(city)], dest)
             # distance
-            d = src.getConnectedCities().get(city) + ed # f
+            d = src.getConnectedCities().get(city) + ed  # f
             distance_list.append(d)
             city_names.append(city)
 
         # check if there are no connected cities
         if not distance_list or not city_names:
             textVar.set("No path found!")
-        else:        
+        else:
             shortest_index = distance_list.index(min(distance_list))
             next_city = cities[findCity(city_names[shortest_index])]
 
@@ -128,16 +134,19 @@ def aStarSearch(src, dest, path, textVar):
                         break
                     else:
                         #print(f"remove {city} from {city_names}")
-                        #distance_list.pop(city_names.index(city))
-                        #city_names.remove(city)
+                        # distance_list.pop(city_names.index(city))
+                        # city_names.remove(city)
                         #shortest_index = new_distance_list.index(min(new_distance_list))
                         #next_city = cities[findCity(new_city_names[shortest_index])]
                         pass
                 else:
-                    new_distance_list.append(distance_list[city_names.index(city)])
+                    new_distance_list.append(
+                        distance_list[city_names.index(city)])
                     new_city_names.append(city)
-                    shortest_index = new_distance_list.index(min(new_distance_list))
-                    next_city = cities[findCity(new_city_names[shortest_index])]
+                    shortest_index = new_distance_list.index(
+                        min(new_distance_list))
+                    next_city = cities[findCity(
+                        new_city_names[shortest_index])]
 
             # check if there are no connected cities
             if not new_distance_list or not new_city_names:
@@ -151,28 +160,31 @@ def aStarSearch(src, dest, path, textVar):
 
                 path.append(next_city.getCityName())
                 aStarSearch(next_city, dest, path, textVar)
-    
 
-# function to find city from list of cities using city name
+
 def findCity(city_name):
+    # function to find city from list of cities using city name
     city_names = []
     for c in cities:
         city_names.append(c.getCityName())
     return city_names.index(city_name)
 
-# function to check whether the source city is the destination city or not
+
 def isDestination(src, dest):
+    # function to check whether the source city is the destination city or not
     if src.getCoor() == dest.getCoor():
         return True
     else:
         return False
 
-# function to calc straight line distance between city a and city b
+
 def euclideanDistance(a, b):
+    # function to calc straight line distance between city a and city b
     p1 = a.getCoor()
     p2 = b.getCoor()
     dist = math.sqrt(math.pow((p2[0]-p1[0]), 2) + math.pow((p2[1]-p1[1]), 2))
     return dist
+
 
 def updateImage(dest):
     # visualization
@@ -181,32 +193,34 @@ def updateImage(dest):
         # Add nodes
         ed = euclideanDistance(city, dest)
         ed = round(ed)
-        node = pydot.Node(city.getCityName(), shape='circle', label=city.getCityName(), xlabel=f"h={ed}")
+        node = pydot.Node(city.getCityName(), shape='circle',
+                          label=city.getCityName(), xlabel=f"{city.getCityName()}(h={ed})")
         graph.add_node(node)
 
+    already_connected = []
     for city in cities:
         # Add edges
         connected_cities = city.getConnectedCities().keys()
-        already_connected = []
-        # problem still exists --> double edge
         for c_city in connected_cities:
             if c_city in already_connected:
                 continue
             else:
-                already_connected.append(c_city)
-                graph.add_edge(pydot.Edge(city.getCityName(), c_city, color='blue', label=city.getConnectedCities().get(c_city)))
+                already_connected.append(city.getCityName())
+                graph.add_edge(pydot.Edge(city.getCityName(
+                ), c_city, color='blue', label=city.getConnectedCities().get(c_city)))
 
     # output visualization
-    graph.write_png('output.png') # ignore error
+    graph.write_png('output.png')  # ignore error
     img = Image.open("output.png")
     img = ImageTk.PhotoImage(img)
     imgList[0].configure(image=img)
     imgList[0].image = img
 
-# function to initialize tkinter GUI
+
 def initGUI(root):
+    # function to initialize tkinter GUI
     root.title("AIN-PA1")
-    #root.geometry('800x400')
+    # root.geometry('800x400')
 
     # frames
     frameLeft = Frame(root)
@@ -220,10 +234,10 @@ def initGUI(root):
     img = ImageTk.PhotoImage(img)
     panel = Label(frameLeft, image=img)
     panel.image = img
-    imgList.append(panel) # global var
+    imgList.append(panel)  # global var
     panel.grid(column=0, row=0)
 
-    # entry    
+    # entry
     label1 = Label(frameRight, text="Source City:")
     label1.grid(column=1, row=0, sticky=E)
     entry1 = Entry(frameRight, width=10)
@@ -234,7 +248,7 @@ def initGUI(root):
     entry2.grid(column=2, row=1)
     button1 = Button(frameRight, text="Execute")
     button1.grid(column=1, row=3, columnspan=2, sticky='NESW')
-    
+
     # result
     label3 = Label(frameRight, text="Result:")
     label3.grid(column=1, row=4, sticky=E)
