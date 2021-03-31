@@ -326,7 +326,7 @@ while i <= g:
     fitness = cal_fitness(result_pop)
     # display the current generation's population, fitness, and probabilities
     print(
-        f'gen {i} -> {result_pop} -> fitness: {fitness} -> probs: {probabilities}')
+        f'gen {i} \npopulation: {result_pop} \nfitness: {fitness} \nprobs: {probabilities}\n')
 
     # check if the current generation has the best fitness
     solution = check_best_solution(result_pop, fitness, best_fitness)
@@ -344,3 +344,6 @@ while i <= g:
     result_pop = mutation(population_after_crossover)
 
     i += 1
+
+# prevent cmd exiting immediately
+input("press return to exit")
