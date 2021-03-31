@@ -18,6 +18,7 @@ Make sure those packages are installed for you python.
 This project uses pyinstaller to generate executable files
 
 use `pyinstaller main.py -F` to generate one executable
+
 use `pyinstaller main.py -F --noconsole` to generate executables without cmd
 
 pyinstaller can be installed using pip
