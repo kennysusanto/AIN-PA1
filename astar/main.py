@@ -3,18 +3,9 @@ import math
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
+from threading import Timer
 
 from classes import City
-
-# list of cities
-cities = []
-
-# list of nodes
-nodes = []
-
-# list of images for updating the image
-imgList = []
-
 
 def readCity(file_name):
     # read from file and populate list of cities
@@ -154,14 +145,19 @@ def authenticate(srcCityE, destCityE, textVar):
 
 def aStarSearch(src, dest, path, textVar):
     # a star algorithm / function
+    global btc
     # check if the current source city is the destination city
     if isDestination(src, dest):
         # the current source city is the destination city
         # set the string variable textVar to the path variable
         # (meaning update the label to the visited cities from the
         # source city until the destination city)
+        updateBool(False)
+        print('FOUNDDD============================')
         textVar.set(path)
         # this is the recursive break point
+        t = Timer(1, resetBool)
+        t.start()
     else:
         # the current source city is not the destination city
         # find shortest f from each edge
@@ -187,68 +183,85 @@ def aStarSearch(src, dest, path, textVar):
             # the source city doesnt have connections
             textVar.set("No path found!")
         else:
-            # the source city has connections
-            # calculate the shortest f distance
-            shortest_index = distance_list.index(min(distance_list))
-            # set the next_city variable to the least f distance of the source city
-            next_city = cities[findCity(city_names[shortest_index])]
+            while running_bool:
+                # the source city has connections
+                
+                if len(distance_list) > 0:
+                    # calculate the shortest f distance
+                    shortest_index = distance_list.index(min(distance_list))
+                    # set the next_city variable to the least f distance of the source city
+                    next_city = cities[findCity(city_names[shortest_index])]
 
-            # if city has been visited before
-            new_distance_list = []  # new list of f distances
-            new_city_names = []  # new list of city names
-            for city in city_names:
-                # for every city in list of city names
-                # display the boolean of whether the city is already visited or not
-                print(f"{city} in path: {city in path}")
-                # check if the city is in path or has been visited before
-                if city in path:
-                    # city has been visited before
-                    # check if there are no connected cities from this city
-                    if not distance_list or not city_names:
-                        # there are no connected cities from this city
-                        # stop loop
-                        textVar.set("No path found!")
-                        break
-                    else:
-                        # there are connections from this city
-                        # do nothing
-                        pass
+                    # if city has been visited before
+                    new_distance_list = []  # new list of f distances
+                    new_city_names = []  # new list of city names
+                    for city in city_names:
+                        # for every city in list of city names
+                        # display the boolean of whether the city is already visited or not
+                        print(f"{city} in path: {city in path}")
+                        # check if the city is in path or has been visited before
+                        if city in path:
+                            # city has been visited before
+                            # check if there are no connected cities from this city
+                            if not distance_list or not city_names:
+                                # there are no connected cities from this city
+                                # stop loop
+                                textVar.set("No path found!")
+                                break
+                            else:
+                                # there are connections from this city
+                                # do nothing
+                                pass
+                        else:
+                            # city hasn't been visited before
+                            # append the city's f distance to the new list of f distances
+                            new_distance_list.append(
+                                distance_list[city_names.index(city)])
+                            # append the city's name to the new list of city names
+                            new_city_names.append(city)
+                            # calculate the shortest f distance from the new list of f distances
+                            shortest_index = new_distance_list.index(
+                                min(new_distance_list))
+                            # set the next_city variable to the shortest f distance
+                            next_city = cities[findCity(
+                                new_city_names[shortest_index])]
                 else:
-                    # city hasn't been visited before
-                    # append the city's f distance to the new list of f distances
-                    new_distance_list.append(
-                        distance_list[city_names.index(city)])
-                    # append the city's name to the new list of city names
-                    new_city_names.append(city)
-                    # calculate the shortest f distance from the new list of f distances
-                    shortest_index = new_distance_list.index(
-                        min(new_distance_list))
-                    # set the next_city variable to the shortest f distance
-                    next_city = cities[findCity(
-                        new_city_names[shortest_index])]
+                    print('deadend')
+                
+                # delete deadend city / backtrack process
+                if len(btc) > 0:
+                    path = path[:-1]
+                    btc.pop()
 
-            # check if there are no connected cities for the current connected city
-            if not new_distance_list or not new_city_names:
-                # the current connected city has no connections
-                textVar.set("No path found!")
-            else:
-                # the current connected city has connections
-                # display the source city name
-                print(f"src city: {src.getCityName()}")
-                # intialize tmp as a dictionary with the new list of city names as the key
-                # and the new list of f distances as the value
-                tmp = dict(zip(new_city_names, new_distance_list))
-                # display the current connected cities of the source city and their f distances
-                print(f"connected cities: {tmp.keys()}{tmp.values()}")
-                # display the next city (selected city) from the source city
-                print(f"next city: {next_city.getCityName()}")
-                print("\n")
+                # check if there are no connected cities for the current connected city
+                if not new_distance_list or not new_city_names:
+                    # the current connected city has no connections
+                    textVar.set("No path found!")
+                    print('BACKTRACK')
+                    btc.append(src.getCityName())
+                    #print(f'len of distances {distance_list} and {shortest_index}')
+                    #distance_list.pop(shortest_index)
+                    break
+                else:
+                    # the current connected city has connections
+                    # display the source city name
+                    print(f"src city: {src.getCityName()}")
+                    # intialize tmp as a dictionary with the new list of city names as the key
+                    # and the new list of f distances as the value
+                    tmp = dict(zip(new_city_names, new_distance_list))
+                    # display the current connected cities of the source city and their f distances
+                    print(f"connected cities: {tmp.keys()}{tmp.values()}")
+                    # display the next city (selected city) from the source city
+                    print(f"next city: {next_city.getCityName()}")
+                    print("\n")
 
-                # append the next city's name to the path (meaning visited)
-                path.append(next_city.getCityName())
-                # call this function again (recursive) with the next city as the new source city
-                # this will run until the destination city is found or until there are no connections left
-                aStarSearch(next_city, dest, path, textVar)
+                    # append the next city's name to the path (meaning visited)
+                    path.append(next_city.getCityName())
+                    # call this function again (recursive) with the next city as the new source city
+                    # this will run until the destination city is found or until there are no connections left
+                    aStarSearch(next_city, dest, path, textVar)
+            
+            
 
 
 def findCity(city_name):
@@ -375,8 +388,32 @@ def initGUI(root):
     button1.configure(command=lambda: authenticate(entry1, entry2, text_var))
 
 
-# main
-preprocess()  # execute the preprocess functoin
-window = Tk()  # initialize Tkinter GUI
-initGUI(window)  # initialize Tkinter GUI widgets
-window.mainloop()  # run the GUI
+def updateBool(sts):
+    global running_bool
+    running_bool = sts
+
+def resetBool():
+    updateBool(True)
+    print('resetted!')
+
+if __name__ == '__main__':
+    # list of cities
+    cities = []
+
+    # list of nodes
+    nodes = []
+
+    # list of images for updating the image
+    imgList = []
+
+    # running loop boolean for a star
+    running_bool = True
+
+    # global for backtrack
+    btc = []
+
+    # main
+    preprocess()  # execute the preprocess functoin
+    window = Tk()  # initialize Tkinter GUI
+    initGUI(window)  # initialize Tkinter GUI widgets
+    window.mainloop()  # run the GUI
